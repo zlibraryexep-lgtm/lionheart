@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tracker Plan de Inglés</title>
+<style>
+  :root {
+    --navy: #05070d;
+    --card: #0d1420;
+    --card-2: #111a2b;
+    --gold: #00e5ff;
+    --gold-dim: rgba(0,229,255,0.18);
+    --teal: #ff2fd0;
+    --paper: #dbeeff;
+    --muted: #5f7fa3;
+    --danger: #e2716a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background:
+      linear-gradient(rgba(0,229,255,0.035) 1px, transparent 1px) 0 0/100% 28px,
+      linear-gradient(90deg, rgba(0,229,255,0.035) 1px, transparent 1px) 0 0/28px 100%,
+      var(--navy);
+    color: var(--paper);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 20px 16px 40px;
+    max-width: 460px;
+    margin: 0 auto;
+  }
+  .layout { display: block; }
+  .layout > * { margin-bottom: 16px; }
+  @media (min-width: 860px) {
+    body { max-width: 980px; padding: 32px 28px 48px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+    .layout > * { margin-bottom: 0; }
+    .layout > .span-full { grid-column: 1 / -1; }
+  }
+  h1 {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-weight: 600;
+    font-size: 19px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin: 0 0 2px;
+    color: var(--gold);
+    text-shadow: 0 0 12px var(--gold-dim);
+  }
+  h1::before { content: "▹ "; color: var(--teal); }
+  .subtitle {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    margin: 0 0 20px;
+  }
+  .year-ring-wrap {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--card);
+    border: 1px solid rgba(0,229,255,0.25);
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 18px;
+    box-shadow: 0 0 18px rgba(0,229,255,0.08), inset 0 0 30px rgba(0,229,255,0.03);
+  }
+  .ring {
+    position: relative;
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .ring-hole {
+    position: absolute;
+    top: 8px; left: 8px; right: 8px; bottom: 8px;
+    border-radius: 50%;
+    background: var(--card);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  .ring-hole .pct {
+    font-family: Consolas, Menlo, monospace;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--gold);
+  }
+  .year-info { flex: 1; }
+  .year-info .level {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 2px;
+  }
+  .year-info .range {
+    font-size: 12px;
+    color: var(--muted);
+    margin: 0 0 6px;
+  }
+  .streak {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    background: var(--gold-dim);
+    color: var(--gold);
+    padding: 3px 9px;
+    border-radius: 20px;
+  }
+  .day-card {
+    background: var(--card);
+    border-radius: 6px;
+    border: 1px solid rgba(0,229,255,0.25);
+    padding: 18px;
+    margin-bottom: 16px;
+    box-shadow: 0 0 18px rgba(0,229,255,0.08);
+  }
+  .day-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .day-header .date-label {
+    font-size: 15px;
+    font-weight: 600;
+    text-transform: capitalize;
+  }
+  .day-header .day-type {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .today-ring {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin: 0 auto 18px;
+    position: relative;
+    transition: background 0.25s ease;
+  }
+  .today-ring-hole {
+    position: absolute;
+    top: 10px; left: 10px; right: 10px; bottom: 10px;
+    border-radius: 50%;
+    background: var(--card);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .today-ring-hole span {
+    font-size: 19px;
+    font-weight: 600;
+  }
+  .block-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+  .block-row:first-of-type { border-top: none; }
+  .block-dot {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.18);
+    background: transparent;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: transparent;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .block-dot.done {
+    border-color: var(--gold);
+    background: var(--gold);
+    color: var(--navy);
+    box-shadow: 0 0 10px var(--gold);
+  }
+  .block-label {
+    flex: 1;
+    font-size: 14px;
+  }
+  .block-label .sub {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+  .month-card {
+    background: var(--card);
+    border-radius: 6px;
+    border: 1px solid rgba(0,229,255,0.25);
+    padding: 16px 14px;
+    box-shadow: 0 0 18px rgba(0,229,255,0.08);
+  }
+  .month-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .month-nav .month-title { margin: 0; flex: 1; text-align: center; }
+  .nav-btn {
+    background: transparent;
+    border: 1px solid rgba(0,229,255,0.3);
+    color: var(--teal);
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .nav-btn:active { background: rgba(0,229,255,0.15); }
+  .month-title {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0 0 12px;
+    text-transform: capitalize;
+  }
+  .month-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+  }
+  .month-day {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--muted);
+    cursor: pointer;
+    border: 1.5px solid rgba(255,255,255,0.08);
+    background: transparent;
+  }
+  .month-day.selected {
+    border-color: var(--teal);
+    color: var(--teal);
+    box-shadow: 0 0 8px var(--teal);
+  }
+  .month-day.empty {
+    border: none;
+    cursor: default;
+  }
+  .legend {
+    display: flex;
+    gap: 14px;
+    margin-top: 12px;
+    font-size: 11px;
+    color: var(--muted);
+    flex-wrap: wrap;
+  }
+  .legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .legend .dot {
+    width: 9px; height: 9px; border-radius: 50%;
+  }
+</style>
+</head>
+<body>
+
+  <h1>Mi rutina diaria</h1>
+  <p class="subtitle">Detox, estudio, entreno, inglés, lectura y meditación</p>
+
+  <div class="layout">
+
+  <div class="year-ring-wrap span-full">
+    <div class="ring" id="yearRing">
+      <div class="ring-hole"><span class="pct" id="yearPct">0%</span></div>
+    </div>
+    <div class="year-info">
+      <p class="level" id="levelLabel">Eyes Open 1</p>
+      <p class="range" id="dayCount">Día 1 de 365</p>
+      <span class="streak" id="streakBadge">🔥 0 días seguidos</span>
+    </div>
+  </div>
+
+  <div class="day-card">
+    <div class="day-header">
+      <div>
+        <div class="date-label" id="selDateLabel">Hoy</div>
+        <div class="day-type" id="selDayType">-</div>
+      </div>
+    </div>
+    <div class="today-ring" id="todayRing">
+      <div class="today-ring-hole"><span id="todayFrac">0/0</span></div>
+    </div>
+    <div id="blockList"></div>
+  </div>
+
+  <div class="month-card">
+    <div class="month-nav">
+      <button class="nav-btn" id="prevMonthBtn" aria-label="Mes anterior">‹</button>
+      <p class="month-title" id="monthTitle">Este mes</p>
+      <button class="nav-btn" id="nextMonthBtn" aria-label="Mes siguiente">›</button>
+    </div>
+    <div class="month-grid" id="monthGrid"></div>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--gold)"></i>completo</span>
+      <span><i class="dot" style="background:rgba(0,229,255,0.35)"></i>parcial</span>
+      <span><i class="dot" style="background:rgba(255,255,255,0.08)"></i>sin registrar</span>
+    </div>
+  </div>
+
+  <div class="month-card">
+    <p class="month-title">Progreso diario (últimos 30 días)</p>
+    <div id="lineChartWrap"></div>
+  </div>
+
+  <div class="month-card">
+    <p class="month-title">Cumplimiento por día (últimos 14 días)</p>
+    <div id="barChartWrap"></div>
+  </div>
+
+  </div>
+
+<script>
+(function() {
+  var DAY_NAMES = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+  var MONTH_NAMES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+  function morningBlocks() {
+    return [
+      {id:'detox', label:'Detox de estímulos', sub:'1h sin pantallas al despertar'},
+      {id:'estudio_manana', label:'Estudio mañana', sub:'5 pomodoros — Análisis Matemático'},
+      {id:'estudio_tarde', label:'Estudio tarde', sub:'Pomodoros 6-8 + 40 min IPC'},
+      {id:'entreno', label:'Entrenamiento', sub:'1 hora'}
+    ];
+  }
+
+  function eveningBlocks() {
+    return [
+      {id:'lectura', label:'Lectura', sub:''},
+      {id:'meditacion', label:'Meditación', sub:'nocturna'},
+      {id:'dormir', label:'Dormir a las 23h', sub:'meta: 8 horas de sueño'}
+    ];
+  }
+
+  function englishBlocks(dow) {
+    if (dow === 3) {
+      return [
+        {id:'workbook', label:'Rutina Workbook', sub:'Output + noticing, 60 min'},
+        {id:'b', label:'Bloque B', sub:'Input libre, 30 min'}
+      ];
+    }
+    if (dow === 0) {
+      return [
+        {id:'liviano', label:'Día liviano', sub:'Input + noticing, 30 min'},
+        {id:'conv', label:'Conversación real', sub:'Opcional, tutor o intercambio'}
+      ];
+    }
+    if (dow === 6) {
+      return [
+        {id:'a', label:'Bloque A', sub:'Cambridge, 60 min'},
+        {id:'b', label:'Bloque B', sub:'Input libre, 30 min'},
+        {id:'conv', label:'Conversación real', sub:'Opcional, tutor o intercambio'}
+      ];
+    }
+    return [
+      {id:'a', label:'Bloque A', sub:'Cambridge, 60 min'},
+      {id:'b', label:'Bloque B', sub:'Input libre, 30 min'}
+    ];
+  }
+
+  function blocksForDay(dow) {
+    return morningBlocks().concat(englishBlocks(dow)).concat(eveningBlocks());
+  }
+
+  function fmtKey(d) {
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+
+  function levelForDayNum(n) {
+    var m = Math.min(12, Math.max(1, Math.ceil(n / 30)));
+    var level = Math.min(4, Math.ceil(m / 3));
+    var startMonth = (level - 1) * 3 + 1;
+    var endMonth = level * 3;
+    return {level: level, range: 'Meses ' + startMonth + '-' + endMonth};
+  }
+
+  var today = new Date();
+  var selectedDate = new Date(today);
+  var viewYear = today.getFullYear();
+  var viewMonth = today.getMonth();
+  var dataCache = {};
+  var startDateStr = null;
+
+  var hasBridge = false;
+  try {
+    hasBridge = !!(window.storage && typeof window.storage.get === 'function');
+  } catch (e) { hasBridge = false; }
+
+  function rawGet(key) {
+    if (hasBridge) {
+      return window.storage.get(key, false).then(function(r) {
+        return r && r.value ? r.value : null;
+      }).catch(function() { return null; });
+    }
+    try {
+      return Promise.resolve(window.localStorage.getItem(key));
+    } catch (e) {
+      return Promise.resolve(null);
+    }
+  }
+
+  function rawSet(key, value) {
+    if (hasBridge) {
+      return window.storage.set(key, value, false).catch(function() {});
+    }
+    try {
+      window.localStorage.setItem(key, value);
+    } catch (e) {}
+    return Promise.resolve();
+  }
+
+  function getDayData(key) {
+    if (dataCache[key]) return Promise.resolve(dataCache[key]);
+    return rawGet('trackerday:' + key).then(function(raw) {
+      var val = raw ? JSON.parse(raw) : {};
+      dataCache[key] = val;
+      return val;
+    }).catch(function() {
+      dataCache[key] = {};
+      return {};
+    });
+  }
+
+  function saveDayData(key, val) {
+    dataCache[key] = val;
+    return rawSet('trackerday:' + key, JSON.stringify(val));
+  }
+
+  function getMeta() {
+    return rawGet('trackermeta').then(function(raw) {
+      return raw ? JSON.parse(raw) : null;
+    }).catch(function() { return null; });
+  }
+
+  function setMeta(meta) {
+    return rawSet('trackermeta', JSON.stringify(meta));
+  }
+
+  var metaPromise = null;
+  function ensureMeta() {
+    if (!metaPromise) {
+      metaPromise = getMeta().then(function(m) {
+        if (!m) {
+          m = {startDate: fmtKey(today)};
+          return setMeta(m).then(function() { return m; });
+        }
+        return m;
+      });
+    }
+    return metaPromise;
+  }
+
+  function buildRingBackground(blocks) {
+    var n = blocks.length;
+    if (n === 0) return 'rgba(255,255,255,0.08)';
+    var segDeg = 360 / n;
+    var stops = [];
+    var cur = 0;
+    var gap = n > 1 ? 5 : 0;
+    blocks.forEach(function(b) {
+      var color = b.done ? 'var(--gold)' : 'rgba(255,255,255,0.10)';
+      stops.push(color + ' ' + cur + 'deg ' + (cur + segDeg - gap) + 'deg');
+      stops.push('transparent ' + (cur + segDeg - gap) + 'deg ' + (cur + segDeg) + 'deg');
+      cur += segDeg;
+    });
+    return 'conic-gradient(from -90deg, ' + stops.join(', ') + ')';
+  }
+
+  function renderDay(dateObj, blockStates) {
+    var key = fmtKey(dateObj);
+    var dow = dateObj.getDay();
+    var blocks = blocksForDay(dow).map(function(b) {
+      return Object.assign({}, b, {done: !!blockStates[b.id]});
+    });
+
+    var isToday = fmtKey(dateObj) === fmtKey(today);
+    document.getElementById('selDateLabel').textContent = isToday
+      ? 'Hoy · ' + DAY_NAMES[dow] + ' ' + dateObj.getDate() + ' ' + MONTH_NAMES[dateObj.getMonth()]
+      : DAY_NAMES[dow] + ' ' + dateObj.getDate() + ' ' + MONTH_NAMES[dateObj.getMonth()];
+    document.getElementById('selDayType').textContent = dow === 3 ? 'día workbook' : dow === 0 ? 'día liviano' : 'día estándar';
+
+    var ring = document.getElementById('todayRing');
+    ring.style.background = buildRingBackground(blocks);
+    var done = blocks.filter(function(b){ return b.done; }).length;
+    document.getElementById('todayFrac').textContent = done + '/' + blocks.length;
+
+    var list = document.getElementById('blockList');
+    list.innerHTML = '';
+    blocks.forEach(function(b) {
+      var row = document.createElement('div');
+      row.className = 'block-row';
+      var dot = document.createElement('button');
+      dot.className = 'block-dot' + (b.done ? ' done' : '');
+      dot.setAttribute('aria-label', (b.done ? 'Marcar como pendiente: ' : 'Marcar como completo: ') + b.label);
+      dot.innerHTML = b.done ? '<i class="ti ti-check" aria-hidden="true"></i>' : '';
+      dot.addEventListener('click', function() {
+        toggleBlock(key, b.id);
+      });
+      var label = document.createElement('div');
+      label.className = 'block-label';
+      label.innerHTML = b.label + '<span class="sub">' + b.sub + '</span>';
+      row.appendChild(dot);
+      row.appendChild(label);
+      list.appendChild(row);
+    });
+  }
+
+  function loadAndRenderDay(dateObj) {
+    var key = fmtKey(dateObj);
+    getDayData(key).then(function(data) {
+      renderDay(dateObj, data);
+    });
+  }
+
+  function toggleBlock(key, blockId) {
+    getDayData(key).then(function(data) {
+      var updated = Object.assign({}, data);
+      updated[blockId] = !updated[blockId];
+      saveDayData(key, updated).then(function() {
+        renderDay(selectedDate, updated);
+        renderMonthGrid();
+        renderYearSummary();
+        renderLineChart();
+        renderBarChart();
+      });
+    });
+  }
+
+  function computeStreak(callback) {
+    var count = 0;
+    var cursor = new Date(today);
+    function step() {
+      var key = fmtKey(cursor);
+      getDayData(key).then(function(data) {
+        var blocks = blocksForDay(cursor.getDay()).filter(function(b){ return b.id !== 'conv'; });
+        var allDone = blocks.length > 0 && blocks.every(function(b){ return data[b.id]; });
+        if (allDone) {
+          count++;
+          cursor.setDate(cursor.getDate() - 1);
+          step();
+        } else {
+          callback(count);
+        }
+      });
+    }
+    step();
+  }
+
+  function renderYearSummary() {
+    ensureMeta().then(function(meta) {
+      startDateStr = meta.startDate;
+      var start = new Date(startDateStr + 'T00:00:00');
+      var diffDays = Math.floor((today - start) / (1000*60*60*24)) + 1;
+      diffDays = Math.max(1, Math.min(365, diffDays));
+      var lvl = levelForDayNum(diffDays);
+      document.getElementById('levelLabel').textContent = 'Eyes Open ' + lvl.level;
+      document.getElementById('dayCount').textContent = 'Día ' + diffDays + ' de 365 · ' + lvl.range;
+
+      var promises = [];
+      var checkDate = new Date(start);
+      for (var i = 0; i < diffDays; i++) {
+        (function(d) {
+          var key = fmtKey(d);
+          promises.push(getDayData(key).then(function(data) {
+            var blocks = blocksForDay(d.getDay()).filter(function(b){ return b.id !== 'conv'; });
+            if (blocks.length === 0) return 0;
+            var done = blocks.filter(function(b){ return data[b.id]; }).length;
+            return done / blocks.length;
+          }));
+        })(new Date(checkDate));
+        checkDate.setDate(checkDate.getDate() + 1);
+      }
+      Promise.all(promises).then(function(fracs) {
+        var avg = fracs.reduce(function(a,b){return a+b;}, 0) / fracs.length;
+        var pct = Math.round(avg * 100);
+        document.getElementById('yearPct').textContent = pct + '%';
+        var yr = document.getElementById('yearRing');
+        yr.style.background = 'conic-gradient(from -90deg, var(--gold) 0deg ' + (pct*3.6) + 'deg, rgba(255,255,255,0.10) ' + (pct*3.6) + 'deg 360deg)';
+      });
+
+      computeStreak(function(count) {
+        document.getElementById('streakBadge').innerHTML = '<i class="ti ti-flame" aria-hidden="true"></i> ' + count + ' días seguidos';
+      });
+    });
+  }
+
+  function renderLineChart() {
+    var rangeStart = new Date(today);
+    rangeStart.setDate(rangeStart.getDate() - 29);
+    var days = 30;
+    var promises = [];
+    var cursor = new Date(rangeStart);
+    for (var i = 0; i < days; i++) {
+      (function(d) {
+        var key = fmtKey(d);
+        promises.push(getDayData(key).then(function(data) {
+          var blocks = blocksForDay(d.getDay()).filter(function(b){ return b.id !== 'conv'; });
+          var done = blocks.filter(function(b){ return data[b.id]; }).length;
+          return {date: new Date(d), pct: blocks.length ? Math.round(done/blocks.length*100) : 0};
+        }));
+      })(new Date(cursor));
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    Promise.all(promises).then(drawLineChart);
+  }
+
+  function drawLineChart(points) {
+    var svgNS = 'http://www.w3.org/2000/svg';
+    var w = 320, h = 140, padL = 26, padR = 8, padT = 10, padB = 20;
+    var innerW = w - padL - padR, innerH = h - padT - padB;
+    var n = points.length;
+    var container = document.getElementById('lineChartWrap');
+    container.innerHTML = '';
+    var svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+    svg.setAttribute('width', '100%');
+    svg.style.display = 'block';
+
+    [0, 50, 100].forEach(function(v) {
+      var y = padT + innerH - (v/100*innerH);
+      var line = document.createElementNS(svgNS, 'line');
+      line.setAttribute('x1', padL); line.setAttribute('x2', w - padR);
+      line.setAttribute('y1', y); line.setAttribute('y2', y);
+      line.setAttribute('stroke', 'rgba(255,255,255,0.08)');
+      line.setAttribute('stroke-width', '1');
+      svg.appendChild(line);
+      var label = document.createElementNS(svgNS, 'text');
+      label.setAttribute('x', 1); label.setAttribute('y', y + 3);
+      label.setAttribute('font-size', '8'); label.setAttribute('fill', '#5f7fa3');
+      label.textContent = v + '%';
+      svg.appendChild(label);
+    });
+
+    if (n > 1) {
+      var stepX = innerW / (n - 1);
+      var pathD = '';
+      points.forEach(function(p, i) {
+        var x = padL + i * stepX;
+        var y = padT + innerH - (p.pct/100*innerH);
+        pathD += (i === 0 ? 'M' : 'L') + x + ',' + y + ' ';
+      });
+      var areaD = pathD + 'L' + (padL + (n-1)*stepX) + ',' + (padT+innerH) + ' L' + padL + ',' + (padT+innerH) + ' Z';
+
+      var area = document.createElementNS(svgNS, 'path');
+      area.setAttribute('d', areaD);
+      area.setAttribute('fill', 'rgba(0,229,255,0.15)');
+      svg.appendChild(area);
+
+      var path = document.createElementNS(svgNS, 'path');
+      path.setAttribute('d', pathD);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', 'var(--gold)');
+      path.setAttribute('stroke-width', '2');
+      path.setAttribute('stroke-linejoin', 'round');
+      path.setAttribute('stroke-linecap', 'round');
+      svg.appendChild(path);
+
+      points.forEach(function(p, i) {
+        var x = padL + i * stepX;
+        var y = padT + innerH - (p.pct/100*innerH);
+        var c = document.createElementNS(svgNS, 'circle');
+        c.setAttribute('cx', x); c.setAttribute('cy', y);
+        c.setAttribute('r', i === n-1 ? 3 : 1.6);
+        c.setAttribute('fill', i === n-1 ? 'var(--gold)' : 'rgba(0,229,255,0.6)');
+        svg.appendChild(c);
+      });
+
+      [0, Math.floor((n-1)/2), n-1].forEach(function(idx) {
+        var p = points[idx];
+        var x = padL + idx * stepX;
+        var t = document.createElementNS(svgNS, 'text');
+        t.setAttribute('x', Math.min(Math.max(x, padL+8), w-padR-8));
+        t.setAttribute('y', h - 4);
+        t.setAttribute('font-size', '8');
+        t.setAttribute('fill', '#5f7fa3');
+        t.setAttribute('text-anchor', idx === 0 ? 'start' : idx === n-1 ? 'end' : 'middle');
+        t.textContent = p.date.getDate() + '/' + (p.date.getMonth()+1);
+        svg.appendChild(t);
+      });
+    } else if (n === 1) {
+      var t2 = document.createElementNS(svgNS, 'text');
+      t2.setAttribute('x', w/2); t2.setAttribute('y', h/2);
+      t2.setAttribute('text-anchor', 'middle'); t2.setAttribute('fill', '#5f7fa3'); t2.setAttribute('font-size', '11');
+      t2.textContent = 'Necesitás más de un día registrado';
+      svg.appendChild(t2);
+    }
+
+    container.appendChild(svg);
+  }
+
+  function renderBarChart() {
+    var rangeStart = new Date(today);
+    rangeStart.setDate(rangeStart.getDate() - 13);
+    var days = 14;
+    var promises = [];
+    var cursor = new Date(rangeStart);
+    for (var i = 0; i < days; i++) {
+      (function(d) {
+        var key = fmtKey(d);
+        promises.push(getDayData(key).then(function(data) {
+          var blocks = blocksForDay(d.getDay()).filter(function(b){ return b.id !== 'conv'; });
+          var done = blocks.filter(function(b){ return data[b.id]; }).length;
+          return {date: new Date(d), pct: blocks.length ? Math.round(done/blocks.length*100) : 0};
+        }));
+      })(new Date(cursor));
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    Promise.all(promises).then(drawBarChart);
+  }
+
+  function drawBarChart(points) {
+    var svgNS = 'http://www.w3.org/2000/svg';
+    var n = points.length;
+    var w = 320, h = 150, padL = 26, padR = 6, padT = 10, padB = 20;
+    var innerW = w - padL - padR, innerH = h - padT - padB;
+    var container = document.getElementById('barChartWrap');
+    container.innerHTML = '';
+    var svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+    svg.setAttribute('width', '100%');
+    svg.style.display = 'block';
+
+    [0, 50, 100].forEach(function(v) {
+      var y = padT + innerH - (v/100*innerH);
+      var line = document.createElementNS(svgNS, 'line');
+      line.setAttribute('x1', padL); line.setAttribute('x2', w - padR);
+      line.setAttribute('y1', y); line.setAttribute('y2', y);
+      line.setAttribute('stroke', 'rgba(0,229,255,0.10)');
+      line.setAttribute('stroke-width', '1');
+      svg.appendChild(line);
+      var label = document.createElementNS(svgNS, 'text');
+      label.setAttribute('x', 1); label.setAttribute('y', y + 3);
+      label.setAttribute('font-size', '8'); label.setAttribute('fill', '#5f7fa3');
+      label.textContent = v + '%';
+      svg.appendChild(label);
+    });
+
+    var gap = 4;
+    var barW = n > 0 ? (innerW / n) - gap : innerW;
+    points.forEach(function(p, i) {
+      var x = padL + i * (innerW/n) + gap/2;
+      var barH = (p.pct/100) * innerH;
+      var y = padT + innerH - barH;
+      var color = p.pct >= 90 ? 'var(--gold)' : p.pct >= 40 ? 'var(--teal)' : 'rgba(0,229,255,0.15)';
+      var rect = document.createElementNS(svgNS, 'rect');
+      rect.setAttribute('x', x); rect.setAttribute('y', y);
+      rect.setAttribute('width', Math.max(barW, 2)); rect.setAttribute('height', Math.max(barH, 1));
+      rect.setAttribute('fill', color);
+      rect.setAttribute('rx', '1.5');
+      svg.appendChild(rect);
+
+      if (n <= 14) {
+        var t = document.createElementNS(svgNS, 'text');
+        t.setAttribute('x', x + barW/2);
+        t.setAttribute('y', h - 4);
+        t.setAttribute('font-size', '7.5');
+        t.setAttribute('fill', '#5f7fa3');
+        t.setAttribute('text-anchor', 'middle');
+        t.textContent = p.date.getDate();
+        svg.appendChild(t);
+      }
+    });
+
+    container.appendChild(svg);
+  }
+
+  function renderMonthGrid() {
+    var monthDate = new Date(viewYear, viewMonth, 1);
+    document.getElementById('monthTitle').textContent = MONTH_NAMES[monthDate.getMonth()] + ' ' + monthDate.getFullYear();
+    var grid = document.getElementById('monthGrid');
+    grid.innerHTML = '';
+    var firstDow = monthDate.getDay();
+    for (var i = 0; i < firstDow; i++) {
+      var empty = document.createElement('div');
+      empty.className = 'month-day empty';
+      grid.appendChild(empty);
+    }
+    var daysInMonth = new Date(viewYear, viewMonth+1, 0).getDate();
+    var loop = function(d) {
+      var dateObj = new Date(viewYear, viewMonth, d);
+      var key = fmtKey(dateObj);
+      var cell = document.createElement('div');
+      cell.className = 'month-day' + (key === fmtKey(selectedDate) ? ' selected' : '');
+      cell.textContent = d;
+      cell.addEventListener('click', function() {
+        selectedDate = dateObj;
+        loadAndRenderDay(selectedDate);
+        renderMonthGrid();
+      });
+      getDayData(key).then(function(data) {
+        var blocks = blocksForDay(dateObj.getDay()).filter(function(b){ return b.id !== 'conv'; });
+        var done = blocks.filter(function(b){ return data[b.id]; }).length;
+        if (blocks.length > 0 && done === blocks.length) {
+          cell.style.background = 'var(--gold)';
+          cell.style.color = 'var(--navy)';
+          cell.style.borderColor = 'var(--gold)';
+        } else if (done > 0) {
+          cell.style.background = 'rgba(0,229,255,0.30)';
+        }
+      });
+      grid.appendChild(cell);
+    };
+    for (var d = 1; d <= daysInMonth; d++) loop(d);
+  }
+
+  document.getElementById('prevMonthBtn').addEventListener('click', function() {
+    viewMonth--;
+    if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+    renderMonthGrid();
+  });
+  document.getElementById('nextMonthBtn').addEventListener('click', function() {
+    viewMonth++;
+    if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+    renderMonthGrid();
+  });
+
+  loadAndRenderDay(selectedDate);
+  renderMonthGrid();
+  renderYearSummary();
+  renderLineChart();
+  renderBarChart();
+
+  if (!hasBridge) {
+    var note = document.createElement('p');
+    note.style.cssText = 'font-size:11px;color:var(--muted);text-align:center;margin-top:16px;';
+    note.textContent = 'Guardado en este navegador. Abrí siempre el mismo enlace, en el mismo celular, para no perder el progreso.';
+    document.body.appendChild(note);
+  }
+})();
+</script>
+</body>
+</html>
